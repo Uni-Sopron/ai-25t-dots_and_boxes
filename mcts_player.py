@@ -4,28 +4,47 @@ import random
 from abstract_player import AbstractPlayer
 from dots_n_boxes import GameState, Direction
 
+Move = tuple[int, int, Direction]
+
 
 class MCTSPlayer(AbstractPlayer):
     def __init__(self, state: GameState, iterations=1_000) -> None:
         self.root = Node(state)
         self.iterations = iterations
 
-    def get_move(self, state: GameState) -> tuple[int, int, Direction]:
+    def get_move(self, state: GameState) -> Move:
+        my_id = state.next_player
+        opp_id = 1 - my_id
         self.root = Node(state)
-        #TODO search current state in existing tree
+        # TODO search node of current state in existing tree
+        #     instead of building a new tree:
+        # self.root = self.find_node(state)
         for _ in range(self.iterations):
             node = self.root.select()
+            if node.state.is_final():
+                break
             child = node.expand()
             result_state = child.simulate()
-            result = result_state.pts[0] - result_state.pts[1]
-            child.backpropagate(result)
+            result = result_state.pts[my_id] - result_state.pts[opp_id]
+            outcome = 0.5
+            if result > 0:
+                outcome = 1.0
+            elif result < 0:
+                outcome = 0.0
+            child.backpropagate(outcome)
+
+        def simulation_count(move) -> int:
+            return self.root.children[move].total
+
+        best_move = max(self.root.children, key=simulation_count)
+        return best_move
 
 
 class Node:
     def __init__(self, state: GameState, parent: "Node | None" = None) -> None:
         self.state = state
         self.parent = parent
-        self.children = dict[tuple, Node]()  # move : node
+        self.children = dict[Move, Node]()  # move : node
         self.wins = 0.0
         self.total = 0
 

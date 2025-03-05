@@ -13,8 +13,6 @@ class MCTSPlayer(AbstractPlayer):
         self.iterations = iterations
 
     def get_move(self, state: GameState) -> Move:
-        my_id = state.next_player
-        opp_id = 1 - my_id
         self.root = Node(state)
         # TODO search node of current state in existing tree
         #     instead of building a new tree:
@@ -25,13 +23,10 @@ class MCTSPlayer(AbstractPlayer):
                 break
             child = node.expand()
             result_state = child.simulate()
+            my_id = state.next_player
+            opp_id = 1 - my_id
             result = result_state.pts[my_id] - result_state.pts[opp_id]
-            outcome = 0.5
-            if result > 0:
-                outcome = 1.0
-            elif result < 0:
-                outcome = 0.0
-            child.backpropagate(outcome)
+            child.backpropagate(result)
 
         def simulation_count(move) -> int:
             return self.root.children[move].total
@@ -66,15 +61,17 @@ class Node:
 
     def backpropagate(self, result: float) -> None:
         """Update the node's and parents' wins and total counts."""
-        node = self
+        outcome = 0.5
+        if result > 0:
+            outcome = 1.0
+        elif result < 0:
+            outcome = 0.0
         player = self.state.next_player
-        
+        node = self
         while node is not None:
             node.total += 1
-            
             if node.state.next_player == player:
-                node.wins += result
+                node.wins += outcome
             else:
-                node.wins += 0-result
+                node.wins += 1.0 - outcome
             node = node.parent
-            

@@ -1,0 +1,2 @@
+- [Wikipedia](https://en.wikipedia.org/wiki/Dots_and_boxes)
+- [Online játék](https://www.coolmathgames.com/0-dots-and-boxes)

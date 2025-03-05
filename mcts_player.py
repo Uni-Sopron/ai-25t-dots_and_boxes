@@ -11,7 +11,14 @@ class MCTSPlayer(AbstractPlayer):
         self.iterations = iterations
 
     def get_move(self, state: GameState) -> tuple[int, int, Direction]:
-        pass
+        self.root = Node(state)
+        #TODO search current state in existing tree
+        for _ in range(self.iterations):
+            node = self.root.select()
+            child = node.expand()
+            result_state = child.simulate()
+            result = result_state.pts[0] - result_state.pts[1]
+            child.backpropagate(result)
 
 
 class Node:

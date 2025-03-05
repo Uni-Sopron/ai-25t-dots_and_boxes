@@ -47,4 +47,15 @@ class Node:
 
     def backpropagate(self, result: float) -> None:
         """Update the node's and parents' wins and total counts."""
-        pass
+        node = self
+        player = self.state.next_player
+        
+        while node is not None:
+            node.total += 1
+            
+            if node.state.next_player == player:
+                node.wins += result
+            else:
+                node.wins += 0-result
+            node = node.parent
+            

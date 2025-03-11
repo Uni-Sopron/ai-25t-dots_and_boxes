@@ -52,7 +52,9 @@ class Node:
 
     def expand(self) -> "Node":
         """Expand the current node with a new child node."""
-        pass
+        next_move = random.choice(self.state.valid_moves())
+        self.children[next_move] = Node(self.state.move(*next_move), self)
+        return self.children[next_move]
 
     def simulate(self) -> GameState:
         """Simulate the complete game from the current node with random moves."""

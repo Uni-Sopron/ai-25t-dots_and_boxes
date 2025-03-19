@@ -4,7 +4,6 @@ import random
 from abstract_player import AbstractPlayer
 from dots_n_boxes import GameState, Direction
 
-C = math.sqrt(2)
 
 class MCTSPlayer(AbstractPlayer):
     def __init__(self, state: GameState, iterations=1_000) -> None:
@@ -16,6 +15,7 @@ class MCTSPlayer(AbstractPlayer):
 
 
 class Node:
+    C = math.sqrt(2)
     def __init__(self, state: GameState, parent: "Node | None" = None) -> None:
         self.state = state
         self.parent = parent

@@ -4,6 +4,7 @@ import random
 from abstract_player import AbstractPlayer
 from dots_n_boxes import GameState, Direction
 
+C = math.sqrt(2)
 
 class MCTSPlayer(AbstractPlayer):
     def __init__(self, state: GameState, iterations=1_000) -> None:
@@ -21,7 +22,7 @@ class Node:
         self.children = dict[tuple, Node]()  # move : node
         self.wins = 0.0
         self.total = 0
-        self.c=math.sqrt(2)
+        self.point=float("-inf")
 
     def select(self) -> "Node":
         """Choose a node with a potential child to explore.
@@ -32,20 +33,20 @@ class Node:
         if self.state.is_final():
             return self
         
-        for move in self.state.valid_moves():
-            if move not in self.children:
-                return self
+        if len(self.children)<len(self.state.valid_moves()):
+            return self
         
-        max_points = "-inf"
+        max_points = float("-inf")
+        best_child = None
         
         for move, child in self.children.items():
-            current_point=child.wins/child.total + self.c * math.sqrt(math.log(self.total) / child.total)
+            current_point=child.wins/child.total + C * math.sqrt(math.log(self.total) / child.total)
             if current_point>max_points:
                 max_points=current_point
+                best_child=child
+        
+        return best_child.select()
                
-        for node, point in self.children.items():
-            if point==max_points:
-                return node.select()
 
     def expand(self) -> "Node":
         """Expand the current node with a new child node."""

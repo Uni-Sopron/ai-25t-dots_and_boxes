@@ -22,7 +22,6 @@ class Node:
         self.children = dict[tuple, Node]()  # move : node
         self.wins = 0.0
         self.total = 0
-        self.point=float("-inf")
 
     def select(self) -> "Node":
         """Choose a node with a potential child to explore.
@@ -37,13 +36,15 @@ class Node:
             return self
         
         max_points = float("-inf")
-        best_child = None
+        children = list(self.children.values())
+        best_child = children[0]
+        max_points = best_child.wins / best_child.total + self.C * math.sqrt(math.log(self.total) / best_child.total)
         
-        for move, child in self.children.items():
-            current_point=child.wins/child.total + C * math.sqrt(math.log(self.total) / child.total)
-            if current_point>max_points:
-                max_points=current_point
-                best_child=child
+        for child in children[1:]:
+            current_point = child.wins / child.total + self.C * math.sqrt(math.log(self.total) / child.total)
+            if current_point > max_points:
+                max_points = current_point
+                best_child = child
         
         return best_child.select()
                

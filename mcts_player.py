@@ -35,6 +35,7 @@ class MCTSPlayer(AbstractPlayer):
 
 
 class Node:
+    C = math.sqrt(2)
     def __init__(self, state: GameState, parent: "Node | None" = None) -> None:
         self.state = state
         self.parent = parent
@@ -48,7 +49,25 @@ class Node:
         At every node, continue with the children maximizing the formula:
         child.wins/child.total + c * math.sqrt(math.log(self.total) / child.total)
         """
-        pass
+        if self.state.is_final():
+            return self
+        
+        if len(self.children)<len(self.state.valid_moves()):
+            return self
+        
+        max_points = float("-inf")
+        children = list(self.children.values())
+        best_child = children[0]
+        max_points = best_child.wins / best_child.total + self.C * math.sqrt(math.log(self.total) / best_child.total)
+        
+        for child in children[1:]:
+            current_point = child.wins / child.total + self.C * math.sqrt(math.log(self.total) / child.total)
+            if current_point > max_points:
+                max_points = current_point
+                best_child = child
+        
+        return best_child.select()
+               
 
     def expand(self) -> "Node":
         """Expand the current node with a new child node."""
